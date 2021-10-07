@@ -1,0 +1,13 @@
+parsers/WB/__pycache__/parser_namedtuple_xls_id_wb.cpython-39.pyc 
+parsers/WB/__pycache__/config.cpython-39.pyc 
+parsers/citilink/__pycache__/main.cpython-39.pyc 
+parsers/vseinstrumenti/__pycache__/*.pyc parsers/wb_tag/__pycache__/*.pyc 
+*.log
+.venv
+__pycache__/*
+parsers/wb_tag/tags_wb.xlsx
+parsers/wb_tag/WB_TAGS_29.09.2021.xlsx
+parsers/vseinstrumenti/urls.txt
+conf.py
+
+
