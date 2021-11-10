@@ -18,14 +18,15 @@ class wild:
         self.links_list = links_list
         self.finish = []
         self.DF = pd.DataFrame()
-        # print(self.ID_list)
 
     def get_url(self, url, query):
         count = 0
         while count <= 5:
             count += 1
-            response = self.ses.request("GET", url, data=self.start_payload, headers=self.start_headers, params=query, timeout=20)
-            # print(response.url)
+            if query == 0:
+                response = self.ses.request("GET", url, data=self.start_payload, headers=self.start_headers, timeout=20)
+            else:
+                response = self.ses.request("GET", url, data=self.start_payload, headers=self.start_headers, params=query, timeout=20)
             if response.status_code != 200:
                 time.sleep(0.2)
                 print(f'status code {response.status_code}')
@@ -53,31 +54,11 @@ class wild:
         self.start_url = "https://wbxsearch.wildberries.ru/exactmatch/v2/common"
         self.start_querystring = {"query":f"{searching}"}
         self.data = self.get_url(self.start_url, self.start_querystring)
-        # print(self.data)
 
     ### Запрос что бы узнать кол-во нужных страниц.
     def second_response(self):
-        second_url = f"https://wbxcatalog-ru.wildberries.ru/{self.data['shardKey']}/v3/filters/only" if self.data['shardKey'] != 'merger' else "https://wbxcatalog-ru.wildberries.ru/merger/filters"
-        preset_id = self.data['query'].split('=')
-        preset = preset_id[1]
-        preset_or_token = preset_id[0]
-        querystring = {"spp":"0",
-            "regions":"64,75,4,38,30,33,70,68,71,22,31,66,40,1,80,69,48",
-            "stores":"119261,122252,122256,117673,122258,122259,121631,122466,122467,122495,122496,122498,122590,122591,122592,123816,123817,123818,123820,123821,123822,124093,124094,124095,124096,124097,124098,124099,124100,124101,124583,124584,125238,125239,125240,132318,132320,132321,125611,135243,135238,133917,132871,132870,132869,132829,133084,133618,132994,133348,133347,132709,132597,132807,132291,132012,126674,126676,127466,126679,126680,127014,126675,126670,126667,125186,116433,119400,507,3158,117501,120602,6158,121709,120762,124731,1699,130744,2737,117986,1733,686,132043",
-            "pricemarginCoeff":"1.0",
-            "reg":"0","appType":"1",
-            "offlineBonus":"0",
-            "onlineBonus":"0",
-            "emp":"0",
-            "locale":"ru",
-            "lang":"ru",
-            "curr":"rub",
-            "couponsGeo":"12,3,18,15,21",
-            "dest":"-1257786,-2162196,-102269,-1029256",
-            preset_or_token: str(preset)
-            }
-        
-        data = self.get_url(second_url, querystring)
+        second_url = f"https://wbxcatalog-ru.wildberries.ru/{self.data['shardKey']}/v3/filters/only?spp=0&regions=64,75,4,38,30,33,70,68,22,31,66,40,71,82,1,80,69,48&stores=119261,122252,122256,117673,122258,122259,121631,122466,122467,122495,122496,122498,122590,122591,122592,123816,123817,123818,123820,123821,123822,124093,124094,124095,124096,124097,124098,124099,124100,124101,124583,124584,125238,125239,125240,143772,507,3158,117501,120602,120762,6158,121709,124731,130744,2737,117986,1733,686,132043&pricemarginCoeff=1.0&reg=0&appType=1&offlineBonus=0&onlineBonus=0&emp=0&locale=ru&lang=ru&curr=rub&couponsGeo=12,3,18,15,21&dest=-1257786,-2162196,-102269,-1029256&{self.data['query']}"
+        data = self.get_url(second_url, 0)
         count = data['data']['total']
         if int(count) % 100 == 0:
             self.pages  = int(count) // 100
@@ -89,47 +70,26 @@ class wild:
                 self.pages = 2
 
     def searching(self):
-        url = f"https://wbxcatalog-ru.wildberries.ru/{self.data['shardKey']}/catalog" if self.data['shardKey'] != 'merger' else "https://wbxcatalog-ru.wildberries.ru/merger/catalog"
-        # print(self.pages-1)
         for page in range(1,self.pages):
-            if page == 98:
+            if page == 99:
                 print('stop on 99 page')
                 break
             elif len(self.finish) == len(self.ID_list):
                 print(f'Найдены все на {page}')
                 break
-            preset_id = self.data['query'].split('=')
-            preset = preset_id[1]
-            preset_or_token = preset_id[0]
-            querystring = {
-                "spp":"0",
-                "regions":"64,75,4,38,30,33,70,68,71,22,31,66,40,1,80,69,48",
-                "stores":"119261,122252,122256,117673,122258,122259,121631,122466,122467,122495,122496,122498,122590,122591,122592,123816,123817,123818,123820,123821,123822,124093,124094,124095,124096,124097,124098,124099,124100,124101,124583,124584,125238,125239,125240,132318,132320,132321,125611,135243,135238,133917,132871,132870,132869,132829,133084,133618,132994,133348,133347,132709,132597,132807,132291,132012,126674,126676,127466,126679,126680,127014,126675,126670,126667,125186,116433,119400,507,3158,117501,120602,6158,121709,120762,124731,1699,130744,2737,117986,1733,686,132043",
-                "pricemarginCoeff":"1.0",
-                "reg":"0",
-                "appType":"1",
-                "offlineBonus":"0",
-                "onlineBonus":"0",
-                "emp":"0",
-                "locale":"ru",
-                "lang":"ru",
-                "curr":"rub",
-                "couponsGeo":"12,3,18,15,21",
-                "dest":"-1257786,-2162196,-102269,-1029256",
-                preset_or_token: str(preset),
-                "xfilters":self.data['filters'],
-                "xparams":self.data['query'],
-                "xshard":self.data['shardKey'],
-                "page":page,
-                "sort":"popular",
-                "search":self.data['name']
-                }
-            data_page = self.get_url(url, querystring)
+            url = f"https://wbxcatalog-ru.wildberries.ru/{self.data['shardKey']}/catalog?spp=0&regions=64,75,4,38,30,33,70,68,22,31,66,40,71,82,1,80,69,48&stores=119261,122252,122256,117673,122258,122259,121631,122466,122467,122495,122496,122498,122590,122591,122592,123816,123817,123818,123820,123821,123822,124093,124094,124095,124096,124097,124098,124099,124100,124101,124583,124584,125238,125239,125240,143772,507,3158,117501,120602,120762,6158,121709,124731,130744,2737,117986,1733,686,132043&pricemarginCoeff=1.0&reg=0&appType=1&offlineBonus=0&onlineBonus=0&emp=0&locale=ru&lang=ru&curr=rub&couponsGeo=12,3,18,15,21&dest=-1257786,-2162196,-102269,-1029256&{self.data['query']}&page={str(page)}&sort=popular" # if self.data['shardKey'] != 'merger' and 'preset' not in self.data['shardKey'] else f"https://wbxcatalog-ru.wildberries.ru/{self.data['shardKey']}/catalog?spp=0&regions=64,75,4,38,30,33,70,68,22,31,66,40,71,82,1,80,69,48&stores=119261,122252,122256,117673,122258,122259,121631,122466,122467,122495,122496,122498,122590,122591,122592,123816,123817,123818,123820,123821,123822,124093,124094,124095,124096,124097,124098,124099,124100,124101,124583,124584,125238,125239,125240,143772,507,3158,117501,120602,120762,6158,121709,124731,130744,2737,117986,1733,686,132043&pricemarginCoeff=1.0&reg=0&appType=1&offlineBonus=0&onlineBonus=0&emp=0&locale=ru&lang=ru&curr=rub&couponsGeo=12,3,18,15,21&dest=-1257786,-2162196,-102269,-1029256&{self.data['query']}&page={str(page)}"
+            data_page = self.get_url(url, 0)
             if data_page == '400':
                 break
             self.check(data_page, page)
         for name in self.ID_list:
-            if name not in self.finish:
+            if name not in self.finish and data_page == '400':
+                self.DF.at[self.row,'TAG'] = str(self.data['name'])
+                self.DF.at[self.row,'ID'] = name
+                self.DF.at[self.row,'ALL_PAGE'] = self.pages - 1
+                self.DF.at[self.row,'PRESETS'] = str(f'error 400, last page={page-1}')
+                self.row += 1
+            elif name not in self.finish:
                 self.DF.at[self.row,'TAG'] = str(self.data['name'])
                 self.DF.at[self.row,'ID'] = name
                 self.DF.at[self.row,'ALL_PAGE'] = self.pages - 1
@@ -140,9 +100,7 @@ class wild:
     def check(self, data_page, page):
         items = data_page['data']['products']
         index = 1
-        # print(f'check page {page}')
         for i in items:
-            # print(i['id'], end=' ')
             if str(i['id']) in self.ID_list:
                 self.DF.at[self.row,'TAG'] = str(self.data['name'])
                 self.DF.at[self.row,'ID'] = i['id']
@@ -152,20 +110,31 @@ class wild:
                 self.DF.at[self.row,'POSITION'] = index
                 self.DF.at[self.row,'PAGE'] = page
                 self.DF.at[self.row,'ALL_PAGE'] = self.pages - 1
-                self.DF.at[self.row,'PRESTS'] = self.data['shardKey']
+                self.DF.at[self.row,'PRESETS'] = self.data['shardKey']
                 self.row += 1
                 self.finish.append(str(i['id']))
             index += 1
-        time.sleep(0.1)
+    
+    def no_data(self, search):
+        for i in self.ID_list:
+            self.DF.at[self.row,'TAG'] = str(search)
+            self.DF.at[self.row,'ID'] = str(i)
+            self.DF.at[self.row,'PRESETS'] = 'No data'
+            self.row += 1
+
+
 
 
 
     def start(self):
         for search in self.search_list:
             self.first_response(search)
-            time.sleep(0.2)
-            self.second_response()
-            self.searching()
+            time.sleep(0.1)
+            if len(self.data) > 2:
+                self.second_response()
+                self.searching()
+            else:
+                self.no_data(search)
         self.ses.close()
         self.DF.to_excel(f'/opt/reports/wb_tags/WB_TAGS_{datetime.datetime.today().strftime("%d.%m.%Y")}.xlsx', index=False) # /opt/reports/wb_tags/
 
