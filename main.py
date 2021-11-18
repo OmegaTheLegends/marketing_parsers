@@ -56,18 +56,14 @@ async def scan_message(msg: types.Message):
                 urllib.request.urlretrieve(f'https://api.telegram.org/file/bot{conf.token}/{fi}',f'./{name}')
                 await bot.send_message(msg.from_user.id, 'Файл успешно сохранён')
                 shutil.move(name, f'parsers/wb_tag/{name}')
-            elif name == 'castorama_sku.xlsx':
+
+            elif name in ('all_sku.xlsx', 'dns_sku.xlsx', 'citilink.xlsx', 'castorama_sku.xlsx'):
                 file_info = await bot.get_file(document_id)
                 fi = file_info.file_path
                 urllib.request.urlretrieve(f'https://api.telegram.org/file/bot{conf.token}/{fi}',f'./{name}')
                 await bot.send_message(msg.from_user.id, 'Файл успешно сохранён')
                 shutil.move(name, f'/opt/parser_id/{name}')
-            elif name in ('all_sku.xlsx','dns_sku.xlsx, citilink.xlsx'):
-                file_info = await bot.get_file(document_id)
-                fi = file_info.file_path
-                urllib.request.urlretrieve(f'https://api.telegram.org/file/bot{conf.token}/{fi}',f'./{name}')
-                await bot.send_message(msg.from_user.id, 'Файл успешно сохранён')
-                shutil.move(name, f'/opt/parser_id/{name}')
+ 
             else:
                 file_info = await bot.get_file(document_id)
                 fi = file_info.file_path
