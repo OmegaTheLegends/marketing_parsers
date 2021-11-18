@@ -1,17 +1,10 @@
 import schedule
 import time
-from citilink import main as link
 from vseinstrumenti import vi_main as instrumenti
 from wb_tag import wb_tags_req as tag_wb
 
 import logging
 logging.basicConfig(level=logging.INFO)
-
-def CL():
-	try:
-		link.main()
-	except Exception as ex:
-		logging.info(f'Failed citilink parser. {ex}')
 
 def VI():
 	try:
@@ -28,7 +21,6 @@ def WBTAG():
 
 schedule.every().day.at("08:00").do(WBTAG)
 schedule.every().day.at("00:20").do(VI)
-schedule.every().day.at("00:01").do(CL)
 
 while True:
     schedule.run_pending()
