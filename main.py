@@ -57,7 +57,7 @@ async def scan_message(msg: types.Message):
                 await bot.send_message(msg.from_user.id, 'Файл успешно сохранён')
                 shutil.move(name, f'parsers/wb_tag/{name}')
 
-            elif name in ('all_sku.xlsx', 'dns_sku.xlsx', 'citilink.xlsx', 'castorama_sku.xlsx'):
+            elif name in ('all_sku.xlsx', 'dns_sku.txt', 'citilink.xlsx', 'castorama_sku.xlsx'):
                 file_info = await bot.get_file(document_id)
                 fi = file_info.file_path
                 urllib.request.urlretrieve(f'https://api.telegram.org/file/bot{conf.token}/{fi}',f'./{name}')
@@ -83,6 +83,7 @@ async def cmd_set_commands(message: types.Message):
     if message.from_user.id == conf.Omega:  # Подставьте сюда свой Telegram ID
         commands = [types.BotCommand(command="/wb", description="Отчёты WB"),
 	types.BotCommand(command="/wb_tags", description="Отчёты WB TAGS"),
+	types.BotCommand(command="/aliexpress", description="Отчёт Алиэкспресс"),
 	types.BotCommand(command="/citilink", description="Отчёт Ситилинк"),
 	types.BotCommand(command="/sber", description="Отчёт Goods(СберМегаМаркет)"),
 	types.BotCommand(command="/dns", description="Отчёт DNS-SHOP."),
@@ -175,6 +176,27 @@ async def wb_tags(message: types.Message, state: FSMContext):
         await state.update_data(msg=otvet.message_id)
         await state.update_data(files=wfiles)
         await state.update_data(place='wb_tags')
+        await Form.files_name.set()
+
+@dp.message_handler(commands=['aliexpress'], state="*")
+async def aliexpress(message: types.Message, state: FSMContext):
+    files = []
+    temp_path = os.path.join(path,'aliexpress')
+    files = glob.glob(temp_path+'/*')
+    files.sort(key=os.path.getmtime, reverse=True)
+    for i in range(len(files)):
+        files[i] = files[i].replace(temp_path + '/','')
+    wfiles = files.copy()
+    if len(wfiles) > 6:
+        del wfiles[7:]
+    if len(files) == 0:
+        await message.answer('В данной категории еще нет отчётов')
+        await state.finish()
+    else:
+        otvet = await message.answer("Выберите нужный файл", reply_markup=await get_keyboard(wfiles))
+        await state.update_data(msg=otvet.message_id)
+        await state.update_data(files=wfiles)
+        await state.update_data(place='aliexpress')
         await Form.files_name.set()
 
 @dp.message_handler(commands=['dns'], state="*")

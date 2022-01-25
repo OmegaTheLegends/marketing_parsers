@@ -47,7 +47,11 @@ class VSEINSTR:
             return
         else:
             pass
-        url = data[0]["link"]
+        try:
+            url = data[0]["link"]
+        except:
+            print(data)
+            exit()
         time.sleep(1)
         # write in file urls from api
         if 'http' in url:
